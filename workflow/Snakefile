@@ -9,6 +9,7 @@ from snakemake.utils import R
 
 # Local imports
 from scripts.common import (
+    allocated,
     provided, 
     references,
     str_bool
