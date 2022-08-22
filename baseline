@@ -249,10 +249,9 @@ def parsed_arguments(name, description):
         Optional arguments are shown in square brackets above.
 
         {3}{4}Description:{5}
-          Run the whole genome clinical sequencing pipeline with your data. Please
+          To run the ...long pipeline name with your data raw data, please
         provide a space seperated list of FastQ (globbing is supported) and an output 
-        directory to store results. Optionally call structural variation (SV), copy 
-        number variation (CNV), and more! 
+        directory to store results.
 
         {3}{4}Required arguments:{5}
           --input INPUT [INPUT ...]
