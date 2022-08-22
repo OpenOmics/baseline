@@ -24,6 +24,10 @@ express  or  implied,  including   warranties   of   performance,
 merchantability or fitness for any particular purpose.
 Please cite the author and NIH resources like the "Biowulf Cluster" 
 in any work or product based on this material.
+USAGE:
+  $ baseline <command> [OPTIONS]
+EXAMPLE:
+  $ baseline run --input *.R?.fastq.gz --output output/
 """
 
 # Python standard library
@@ -37,12 +41,15 @@ import argparse  # potential python3 3rd party package, added in python/3.5
 from src import version 
 from src.run import init, setup, bind, dryrun, runner
 from src.shells import bash 
-from src.utils import (err,
-     exists,
-     fatal,
-     permissions,
-     check_cache,
-     require)
+from src.utils import (
+    Colors,
+    err,
+    exists,
+    fatal,
+    hashed,
+    permissions,
+    check_cache,
+    require)
 
 
 # Pipeline Metadata
@@ -51,7 +58,7 @@ __authors__ = 'Skyler Kuhn'
 __email__ = 'skyler.kuhn@nih.gov'
 __home__  =  os.path.dirname(os.path.abspath(__file__))
 _name = os.path.basename(sys.argv[0])
-_description = 'An awesome pipeline'
+_description = 'An awesome baseline pipeline'
 
 
 def unlock(sub_args):
@@ -119,12 +126,68 @@ def run(sub_args):
         config = config
     )
 
+    config['bindpaths'] = bindpaths
+
+    # Step 4. Save config to output directory
+    with open(os.path.join(sub_args.output, 'config.json'), 'w') as fh:
+        json.dump(config, fh, indent = 4, sort_keys = True)
+
     # Optional Step: Dry-run pipeline
     if sub_args.dry_run:
         # Dryrun pipeline
         dryrun_output = dryrun(outdir = sub_args.output) # python3 returns byte-string representation
         print("\nDry-running {} pipeline:\n{}".format(_name, dryrun_output.decode("utf-8")))
         sys.exit(0)
+
+    # Step 5. Orchestrate pipeline execution,
+    # run pipeline in locally on a compute node
+    # for debugging purposes or submit the master
+    # job to the job scheduler, SLURM, and create 
+    # logging file
+    if not exists(os.path.join(sub_args.output, 'logfiles')):
+        # Create directory for logfiles
+        os.makedirs(os.path.join(sub_args.output, 'logfiles'))
+    if sub_args.mode == 'local':
+        log = os.path.join(sub_args.output, 'logfiles', 'snakemake.log')
+    else: 
+        log = os.path.join(sub_args.output, 'logfiles', 'master.log')
+    logfh = open(log, 'w')
+    mjob = runner(mode = sub_args.mode, 
+        outdir = sub_args.output, 
+        # additional_bind_paths = all_bind_paths,
+        alt_cache = sub_args.singularity_cache,  
+        threads = int(sub_args.threads),
+        jobname = sub_args.job_name,
+        submission_script=os.path.join(__home__, 'src', 'run.sh'),
+        logger = logfh,
+        additional_bind_paths = ",".join(bindpaths),
+        tmp_dir = sub_args.tmp_dir, 
+    )
+    
+    # Step 6. Wait for subprocess to complete,
+    # this is blocking and not asynchronous
+    if not sub_args.silent:
+        print("\nRunning {} pipeline in '{}' mode...".format(_name, sub_args.mode)) 
+    mjob.wait()
+    logfh.close()
+
+    # Step 7. Relay information about submission
+    # of the master job or the exit code of the 
+    # pipeline that ran in local mode
+    if sub_args.mode == 'local':
+        if int(mjob.returncode) == 0:
+            print('{} pipeline has successfully completed'.format(_name))
+        else:
+            fatal('{} pipeline failed. Please see {} for more information.'.format(_name,
+                os.path.join(sub_args.output, 'logfiles', 'snakemake.log')))
+    elif sub_args.mode == 'slurm':
+        jobid = open(os.path.join(sub_args.output, 'logfiles', 'mjobid.log')).read().strip()
+        if not sub_args.silent:
+            if int(mjob.returncode) == 0:
+                print('Successfully submitted master job: ', end="")
+            else:
+                fatal('Error occurred when submitting the master job.')
+        print(jobid)
 
 
 def cache(sub_args):
