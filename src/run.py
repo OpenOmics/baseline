@@ -341,9 +341,9 @@ def bind(sub_args, config):
                 value = os.path.dirname(value)
             if value not in bindpaths:
                 bindpaths.append(value)
-    
-    # Bind input file paths, working 
-    # directory, and other reference 
+
+    # Bind input file paths, working
+    # directory, and other reference
     # genome paths
     rawdata_bind_paths = [os.path.realpath(p) for p in config['project']['datapath'].split(',')]
     working_directory =  os.path.realpath(config['project']['workpath'])
@@ -457,7 +457,7 @@ def add_rawdata_information(sub_args, config, ifiles):
     @return config <dict>:
          Updated config dictionary containing user information (username and home directory)
     """
-    
+
     # Determine whether dataset is paired-end
     # or single-end
     # Updates config['project']['nends'] where
@@ -607,12 +607,15 @@ def dryrun(outdir, config='config.json', snakefile=os.path.join('workflow', 'Sna
         Byte string representation of dryrun command
     """
     try:
+        # Setting cores to dummy high number so
+        # displays the true number of cores a rule
+        # will use, it uses the min(--cores CORES, N)
         dryrun_output = subprocess.check_output([
             'snakemake', '-npr',
             '-s', str(snakefile),
             '--use-singularity',
             '--rerun-incomplete',
-            '--cores', str(1),
+            '--cores', str(256),
             '--configfile={}'.format(config)
         ], cwd = outdir,
         stderr=subprocess.STDOUT)
@@ -634,7 +637,7 @@ def dryrun(outdir, config='config.json', snakefile=os.path.join('workflow', 'Sna
 
 
 def runner(mode, outdir, alt_cache, logger, additional_bind_paths = None, 
-    threads=2,  jobname='pl:master', submission_script='runner',
+    threads=2,  jobname='pl:master', submission_script='run.sh',
     tmp_dir = '/lscratch/$SLURM_JOBID/'):
     """Runs the pipeline via selected executor: local or slurm.
     If 'local' is selected, the pipeline is executed locally on a compute node/instance.
@@ -685,7 +688,7 @@ def runner(mode, outdir, alt_cache, logger, additional_bind_paths = None,
     if not exists(os.path.join(outdir, 'logfiles')):
         # Create directory for logfiles
         os.makedirs(os.path.join(outdir, 'logfiles'))
-    
+
     # Create .singularity directory for 
     # installations of snakemake without
     # setuid which creates a sandbox in
@@ -728,7 +731,7 @@ def runner(mode, outdir, alt_cache, logger, additional_bind_paths = None,
         #   --rerun-incomplete --stats "$3"/logfiles/runtime_statistics.json \
         #   --keep-remote --local-cores 30 2>&1 | tee -a "$3"/logfiles/master.log
         masterjob = subprocess.Popen([
-                str(os.path.join(outdir, 'resources', str(submission_script))), mode,
+                str(submission_script), mode,
                 '-j', jobname, '-b', str(bindpaths),
                 '-o', str(outdir), '-c', str(cache),
                 '-t', "'{}'".format(tmp_dir)
