@@ -17,7 +17,7 @@
   </a>
 
   <p>
-    This is the home of the pipeline, baseline. Its long-term goals: to accurately insert goal, to infer ..insert goal, and to boldly ..insert goal like no pipeline before!
+    This is the home of the pipeline, baseline. Its long-term goals: to accurately ...insert goal, to infer ..insert goal, and to boldly ..insert goal like no pipeline before!
   </p>
 
 </div>  
