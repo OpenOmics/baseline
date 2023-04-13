@@ -7,7 +7,7 @@
   [![tests](https://github.com/OpenOmics/baseline/workflows/tests/badge.svg)](https://github.com/OpenOmics/baseline/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/baseline/workflows/docs/badge.svg)](https://github.com/OpenOmics/baseline/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/baseline?color=brightgreen)](https://github.com/OpenOmics/baseline/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/baseline)](https://github.com/OpenOmics/baseline/blob/main/LICENSE) 
   
   <i>
-    This is the home of the pipeline, baseline. Its long-term goals: to accurately ...insert goal, to infer ...insert goal, and to boldly ..insert goal like no pipeline before!
+    This is the home of the pipeline, baseline. Its long-term goals: to accurately ...insert goal, to infer ...insert goal, and to boldly ...insert goal like no pipeline before!
   </i>
 </div>
 
