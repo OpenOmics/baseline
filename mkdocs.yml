@@ -48,7 +48,7 @@ plugins:
 extra:
   social:
     - icon: fontawesome/solid/users
-      link: https://ncbr.ncifcrf.gov/
+      link: https://idss-bioinformatics.nih.gov/
     - icon: fontawesome/brands/github
       link: https://github.com/OpenOmics
     - icon: fontawesome/brands/docker
@@ -100,6 +100,7 @@ nav:
   - Commands: 
     - baseline run: usage/run.md
     - baseline unlock: usage/unlock.md
+    - baseline install: usage/install.md
     - baseline cache: usage/cache.md
   - FAQ:
     - General Questions: faq/questions.md
