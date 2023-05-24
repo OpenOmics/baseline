@@ -39,14 +39,24 @@ if config['options']['mode'] == 'slurm':
                     | uniq \\
                     | tr "\\n" " "
                 ) \\
-            > job_information_${{timestamp}}.tsv
+            > job_information_${{timestamp}}.tsv \\
+            || {{
+                # Handles edge case were only "rule all"
+                # is run and no child jobs are submitted
+                touch job_information_${{timestamp}}.tsv
+            }}
 
             # Get information on any child 
             # job(s) that may have failed 
             grep --color=never \\
                 '^jobid\\|FAILED' \\
                 job_information_${{timestamp}}.tsv \\
-            > failed_jobs_${{timestamp}}.tsv
+            > failed_jobs_${{timestamp}}.tsv \\
+            || {{
+                # Handles edge case were only "rule all"
+                # is run and no child jobs are submitted
+                touch failed_jobs_${{timestamp}}.tsv
+            }}
             touch COMPLETED  
             """
         )
@@ -66,14 +76,24 @@ if config['options']['mode'] == 'slurm':
                     | uniq \\
                     | tr "\\n" " "
                 ) \\
-            > job_information_${{timestamp}}.tsv
+            > job_information_${{timestamp}}.tsv \\
+            || {{
+                # Handles edge case were only "rule all"
+                # is run and no child jobs are submitted
+                touch job_information_${{timestamp}}.tsv
+            }}
 
             # Get information on any child 
             # job(s) that may have failed 
             grep --color=never \\
                 '^jobid\\|FAILED' \\
                 job_information_${{timestamp}}.tsv \\
-            > failed_jobs_${{timestamp}}.tsv
+            > failed_jobs_${{timestamp}}.tsv \\
+            || {{
+                # Handles edge case were only "rule all"
+                # is run and no child jobs are submitted
+                touch failed_jobs_${{timestamp}}.tsv
+            }}
             touch FAILED
             """
         )
