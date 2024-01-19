@@ -74,6 +74,34 @@ Citation coming soon!
 
 </details>
 
+<!---
+# Setup from baseline template
+```bash
+# Add your new pipeline name here,
+# whatever you set here will be the
+# name of your cli too. Please make 
+# sure it does not contain any spaces
+# It should only contain, alpha-numeric
+# characters and hyphens. 
+new_pipeline_name="add_your_pipeline_name_here"
+
+# Dry-run: This step automagically builds a 
+# command to update any instances of the string
+# baseline with your new pipeline name, please
+# make sure to set the variable above to whatever
+# you want to name the pipeline and CLI.
+find . -type f -not -path '*/.baseline_version' -not -path '*./CHANGELOG.md' -not -path '*/.git/*' -exec grep 'baseline' {} /dev/null \; | awk -F ':' '{print $1}' | sort | uniq | sed "s/^/sed -i 's@basline@$new_pipeline_name@g' /g"
+
+# Updates any instances of the string baseline
+# with the name you decided/set above.
+find . -type f -not -path '*/.baseline_version' -not -path '*./CHANGELOG.md' -not -path '*/.git/*' -exec grep 'baseline' {} /dev/null \; | awk -F ':' '{print $1}' | sort | uniq | sed "s/^/sed -i 's@basline@$new_pipeline_name@g' /g" | bash
+
+# Rename the cli or main entry point 
+# of the pipeline
+mv baseline "$new_pipeline_name"
+```
+-->
+
 
 ## References
 <sup>**1.**  Kurtzer GM, Sochat V, Bauer MW (2017). Singularity: Scientific containers for mobility of compute. PLoS ONE 12(5): e0177459.</sup>  
