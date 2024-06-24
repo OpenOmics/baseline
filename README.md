@@ -90,11 +90,11 @@ new_pipeline_name="add_your_pipeline_name_here"
 # baseline with your new pipeline name, please
 # make sure to set the variable above to whatever
 # you want to name the pipeline and CLI.
-find . -type f -not -path '*/.baseline_version' -not -path '*./CHANGELOG.md' -not -path '*/.git/*' -exec grep 'baseline' {} /dev/null \; | awk -F ':' '{print $1}' | sort | uniq | sed "s/^/sed -i 's@basline@$new_pipeline_name@g' /g"
+find . -type f -not -path '*/.baseline_version' -not -path '*./CHANGELOG.md' -not -path '*/.git/*' -exec grep 'baseline' {} /dev/null \; | awk -F ':' '{print $1}' | sort | uniq | sed "s/^/sed -i 's@baseline@$new_pipeline_name@g' /g"
 
 # Updates any instances of the string baseline
 # with the name you decided/set above.
-find . -type f -not -path '*/.baseline_version' -not -path '*./CHANGELOG.md' -not -path '*/.git/*' -exec grep 'baseline' {} /dev/null \; | awk -F ':' '{print $1}' | sort | uniq | sed "s/^/sed -i 's@basline@$new_pipeline_name@g' /g" | bash
+find . -type f -not -path '*/.baseline_version' -not -path '*./CHANGELOG.md' -not -path '*/.git/*' -exec grep 'baseline' {} /dev/null \; | awk -F ':' '{print $1}' | sort | uniq | sed "s/^/sed -i 's@baseline@$new_pipeline_name@g' /g" | bash
 
 # Rename the cli or main entry point 
 # of the pipeline
