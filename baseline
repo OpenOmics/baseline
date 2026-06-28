@@ -32,24 +32,30 @@ EXAMPLE:
 
 # Python standard library
 from __future__ import print_function
-import sys, os, subprocess, re, json, textwrap
+import sys, os, subprocess, json, textwrap
 
 # 3rd party imports from pypi
 import argparse  # potential python3 3rd party package, added in python/3.5
 
 # Local imports
 from src import version 
-from src.run import init, setup, bind, dryrun, runner
-from src.shells import bash 
+from src.run import (
+    init,
+    setup,
+    bind,
+    dryrun,
+    runner,
+    read_global_options
+)
 from src.utils import (
     Colors,
     err,
     exists,
     fatal,
-    hashed,
     permissions,
     check_cache,
-    require)
+    require
+)
 
 
 # Pipeline Metadata
@@ -103,9 +109,11 @@ def run(sub_args):
     # copy over required resources to run 
     # the pipeline
     git_repo = __home__
+    input_type, layout = read_global_options(git_repo)
     input_files = init(
         repo_path = git_repo,
         output_path = sub_args.output,
+        input_type = input_type,
         links = sub_args.input
     )
 
@@ -116,7 +124,9 @@ def run(sub_args):
     config = setup(sub_args, 
         ifiles = input_files,
         repo_path = git_repo,
-        output_path = sub_args.output
+        output_path = sub_args.output,
+        input_type = input_type,
+        layout = layout
     )
 
     # Step 3. Resolve docker/singularity bind

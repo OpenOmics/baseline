@@ -1,4 +1,6 @@
 {
     "options": {
+        "input_type": "illumina_fastq",
+        "layout": "auto"
     }
 }
