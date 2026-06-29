@@ -1,16 +1,13 @@
 # Python standard library
-from os.path import join
+import json
+import os
+import sys
 from os import listdir
-import os, sys, json
-
-# 3rd party imports from pypi
-from snakemake.workflow import workflow as wf_api
-from snakemake.utils import R
-
+from os.path import join
 # Local imports
 from scripts.common import (
     allocated,
-    provided, 
+    provided,
     references,
     str_bool
 )
@@ -22,6 +19,6 @@ rule all:
         []
 
 
-# Import rules 
+# Import rules
 include: join("rules", "common.smk")
 include: join("rules", "hooks.smk")
