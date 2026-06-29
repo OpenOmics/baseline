@@ -2,26 +2,25 @@
 # -*- coding: UTF-8 -*-
 
 # Python standard library
-from __future__ import print_function
+import os
+import subprocess
 from subprocess import CalledProcessError
-import os, subprocess
-
 # Local imports
 from utils import fatal, err
 
 
 def set_options(strict):
     """
-    Changes behavior of default shell and get overrides options 
-    to run bash in a strict mode. 
+    Changes behavior of default shell and get overrides options
+    to run bash in a strict mode.
     @param strict <bool>:
-        Overrides default shell options and runs shell in strict or 
+        Overrides default shell options and runs shell in strict or
         less permissive mode.
     @return prefix <int>:
         Returns overrides options to run bash in a strict mode
     """
     prefix = ''  # permissive shell option
-    if strict: 
+    if strict:
         # Changes behavior of default shell
         # set -e: exit immediately upon error
         # set -u: treats unset variables as an error
@@ -35,24 +34,24 @@ def bash(cmd, interpreter='/bin/bash', strict=set_options(True), cwd=os.getcwd()
     """
     Interface to run a process or bash command. Using subprocess.call_check()
     due to portability across most python versions. It was introduced in python 2.5
-    and it is also interoperabie across all python 3 versions. 
+    and it is also interoperabie across all python 3 versions.
     @param cmd <str>:
         Shell command to run
     @param interpreter <str>:
         Interpreter for command to run [default: bash]
     @pararm strict <bool>:
         Prefixes any command with 'set -euo pipefail' to ensure process fail with
-        the expected exit-code  
+        the expected exit-code
     @params kwargs <check_call()>:
         Keyword arguments to modify subprocess.check_call() behavior
     @return exitcode <int>:
         Returns the exit code of the run command, failures return non-zero exit codes
     """
     try:
-        exitcode = subprocess.check_call(strict + cmd, 
-            shell=True, 
-            executable=interpreter, 
-            cwd=cwd, 
+        exitcode = subprocess.check_call(strict + cmd,
+            shell=True,
+            executable=interpreter,
+            cwd=cwd,
             **kwargs
         )
     except CalledProcessError as e:

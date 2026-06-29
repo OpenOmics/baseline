@@ -164,7 +164,7 @@ site/
 *.tmp
 **/*.tmp
 
-# Test script and test 
+# Test script and test
 # output directories
 test.sh
 test_*/

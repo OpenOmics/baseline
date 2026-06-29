@@ -2,22 +2,21 @@
 # -*- coding: UTF-8 -*-
 
 # Python standard library
+import json
 import os
 import re
-import json
-import sys
 import subprocess
+import sys
 from shutil import copytree
-
 # Local imports
 from utils import (
     Colors,
+    err,
+    exists,
+    fatal,
     git_commit_hash,
     join_jsons,
-    fatal,
     which,
-    exists,
-    err,
 )
 from . import version as __version__
 
@@ -88,6 +87,126 @@ def _fatal_message(body):
     """
     indented = "\n\t".join(line.strip() for line in body.strip().splitlines())
     return f"\n\tFatal: {indented}\n"
+
+# Build config and kick off the pipeline
+def build_config(sub_args, pl_home):
+    """Initialize the working directory and build the pipeline config.
+    Copies required resources into the output directory, dynamically creates
+    the config from user inputs and base templates, and resolves the
+    docker/singularity bind paths.
+    @param sub_args <parser.parse_args() object>:
+        Parsed arguments for run sub-command
+    @param pl_home <str>:
+        Path to pipeline github repo
+    @return config <dict>:
+        Fully-resolved pipeline configuration, including bind paths
+    """
+    git_repo = pl_home
+    input_type, layout = read_global_options(git_repo)
+
+    input_files = init(
+        repo_path=git_repo,
+        output_path=sub_args.output,
+        input_type=input_type,
+        links=sub_args.input,
+    )
+
+    config = setup(
+        sub_args,
+        ifiles=input_files,
+        repo_path=git_repo,
+        output_path=sub_args.output,
+        input_type=input_type,
+        layout=layout,
+    )
+
+    config['bindpaths'] = bind(sub_args, config=config)
+    return config
+
+
+def save_config(config, output_path):
+    """Saves the pipeline config to the output directory as config.json.
+    @param config <dict>:
+        Fully-resolved pipeline configuration
+    @param output_path <str>:
+        Path to the pipeline's output directory
+    """
+    config_file = os.path.join(output_path, 'config.json')
+    with open(config_file, 'w') as fh:
+        json.dump(config, fh, indent=4, sort_keys=True)
+
+
+def launch_pipeline(sub_args, bindpaths, pl_home, pl_name):
+    """Orchestrates pipeline execution and waits for it to complete.
+    Runs the pipeline locally on a compute node for debugging, or submits the
+    master job to the SLURM scheduler. This call is blocking, not asynchronous.
+    @param sub_args <parser.parse_args() object>:
+        Parsed arguments for run sub-command
+    @param bindpaths <list[str]>:
+        Resolved docker/singularity bind paths
+    @param pl_home <str>:
+        Path to pipeline github repo
+    @param pl_name <str>:
+        Name of the pipeline
+    @return mjob <subprocess.Popen object>:
+        The completed master job process
+    """
+    logfiles_dir = os.path.join(sub_args.output, 'logfiles')
+    if not exists(logfiles_dir):
+        os.makedirs(logfiles_dir)
+
+    log_name = 'snakemake.log' if sub_args.mode == 'local' else 'master.log'
+    log = os.path.join(logfiles_dir, log_name)
+
+    with open(log, 'w') as logfh:
+        mjob = runner(
+            mode=sub_args.mode,
+            outdir=sub_args.output,
+            alt_cache=sub_args.singularity_cache,
+            threads=int(sub_args.threads),
+            jobname=sub_args.job_name,
+            submission_script=os.path.join(pl_home, 'src', 'run.sh'),
+            logger=logfh,
+            additional_bind_paths=",".join(bindpaths),
+            tmp_dir=sub_args.tmp_dir,
+        )
+
+        if not sub_args.silent:
+            print("\nRunning {0} pipeline in '{1}' mode...".format(pl_name, sub_args.mode))
+        mjob.wait()
+
+    return mjob
+
+
+def report_outcome(sub_args, mjob, pl_name):
+    """Relays the pipeline outcome to the user.
+    Reports the exit code for local runs, or the submitted master job id
+    for SLURM runs.
+    @param sub_args <parser.parse_args() object>:
+        Parsed arguments for run sub-command
+    @param mjob <subprocess.Popen object>:
+        The completed master job process
+    @param pl_name <str>:
+        Name of the pipeline
+    """
+    if sub_args.mode == 'local':
+        if int(mjob.returncode) == 0:
+            print('{0} pipeline has successfully completed'.format(pl_name))
+        else:
+            fatal('{0} pipeline failed. Please see {1} for more information.'.format(
+                pl_name, os.path.join(sub_args.output, 'logfiles', 'snakemake.log'))
+            )
+    elif sub_args.mode == 'slurm':
+        jobid_file = os.path.join(sub_args.output, 'logfiles', 'mjobid.log')
+        with open(jobid_file) as fh:
+            jobid = fh.read().strip()
+
+        if not sub_args.silent:
+            if int(mjob.returncode) == 0:
+                print('Successfully submitted master job: ', end="")
+            else:
+                fatal('Error occurred when submitting the master job.')
+        print(jobid)
 
 
 # Get input data-type and read layout
