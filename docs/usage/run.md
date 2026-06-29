@@ -8,12 +8,12 @@ This part of the documentation describes options and concepts for <code>baseline
 Setting up the baseline pipeline is fast and easy! In its most basic form, <code>baseline <b>run</b></code> only has *two required inputs*.
 
 ## 2. Synopsis
+
 ```text
 $ baseline run [--help] \
-      [--mode {slurm,local}] [--job-name JOB_NAME] [--batch-id BATCH_ID] \
-      [--tmp-dir TMP_DIR] [--silent] [--sif-cache SIF_CACHE] \ 
-      [--singularity-cache SINGULARITY_CACHE] \
-      [--dry-run] [--threads THREADS] \
+      [--dry-run] [--job-name JOB_NAME] [--mode {{slurm,local}}] \
+      [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE]  \ 
+      [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \
       --input INPUT [INPUT ...] \
       --output OUTPUT
 ```
@@ -29,10 +29,10 @@ Use you can always use the `-h` option for information on a specific command.
 Each of the following arguments are required. Failure to provide a required argument will result in a non-zero exit-code.
 
   `--input INPUT [INPUT ...]`  
-> **Input FastQ or BAM file(s).**  
+> **Input FastQ file(s).**  
 > *type: file(s)*  
 > 
-> One or more FastQ files can be provided. The pipeline does NOT support single-end data. From the command-line, each input file should seperated by a space. Globbing is supported! This makes selecting FastQ files easy. Input FastQ files should always be gzipp-ed.
+> One or more FastQ files can be provided. From the command-line, each input file should seperated by a space. Globbing is supported! This makes selecting FastQ files easy. Input FastQ files should always be gzipp-ed.
 > 
 > ***Example:*** `--input .tests/*.R?.fastq.gz`
 
@@ -43,7 +43,7 @@ Each of the following arguments are required. Failure to provide a required argu
 >   
 > This location is where the pipeline will create all of its output files, also known as the pipeline's working directory. If the provided output directory does not exist, it will be created automatically.
 > 
-> ***Example:*** `--output /data/$USER/baseline_out`
+> ***Example:*** `--output pipeline_output`
 
 ### 2.2 Analysis options
 
@@ -115,7 +115,7 @@ Each of the following arguments are optional, and do not need to be provided.
 >
 > Uses a local cache of SIFs on the filesystem. This SIF cache can be shared across users if permissions are set correctly. If a SIF does not exist in the SIF cache, the image will be pulled from Dockerhub and a warning message will be displayed. The `baseline cache` subcommand can be used to create a local SIF cache. Please see `baseline cache` for more information. This command is extremely useful for avoiding DockerHub pull rate limits. It also remove any potential errors that could occur due to network issues or DockerHub being temporarily unavailable. We recommend running baseline with this option when ever possible.
 > 
-> ***Example:*** `--singularity-cache /data/$USER/SIFs`
+> ***Example:*** `--sif-cache /data/OpenOmics/SIFs`
 
 ---  
   `--threads THREADS`   
@@ -139,6 +139,7 @@ Each of the following arguments are optional, and do not need to be provided.
 > ***Example:*** `--tmp-dir /scratch/$USER/`
 
 ### 2.4 Miscellaneous options  
+
 Each of the following arguments are optional, and do not need to be provided. 
 
   `-h, --help`            
@@ -150,6 +151,7 @@ Each of the following arguments are optional, and do not need to be provided.
 > ***Example:*** `--help`
 
 ## 3. Example
+
 ```bash 
 # Step 1.) Grab an interactive node,
 # do not run on head node!
@@ -159,15 +161,17 @@ module load singularity snakemake
 
 # Step 2A.) Dry-run the pipeline
 ./baseline run --input .tests/*.R?.fastq.gz \
-                  --output /data/$USER/output \
-                  --mode slurm \
-                  --dry-run
+    --sif-cache /data/OpenOmics/SIFs \
+    --output /data/$USER/output \
+    --mode slurm \
+    --dry-run
 
 # Step 2B.) Run the baseline pipeline
 # The slurm mode will submit jobs to 
 # the cluster. It is recommended running 
 # the pipeline in this mode.
 ./baseline run --input .tests/*.R?.fastq.gz \
-                  --output /data/$USER/output \
-                  --mode slurm
+    --sif-cache /data/OpenOmics/SIFs \
+    --output /data/$USER/output \
+    --mode slurm
 ```
