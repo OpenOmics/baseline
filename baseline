@@ -119,7 +119,7 @@ def run(sub_args):
     # Initialize pipeline output directory, copy
     # over required files for running the pipeline,
     # and build the pipelines main config file
-    config = build_config(sub_args, _name)
+    config = build_config(sub_args, __home__)
     save_config(config, sub_args.output)
 
     if sub_args.dry_run:
