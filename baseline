@@ -203,7 +203,7 @@ def cache(sub_args):
     pull_images(repo_path, sif_cache, uris_to_pull)
 
 
-class TasHelpFormatter(argparse.HelpFormatter):
+class CliHelpFormatter(argparse.HelpFormatter):
     """Custom help formatter to improve the formatting of help messages.
     This formatter increases the max_help_position and width to allow for
     increasingly long option names and help messages without breaking
@@ -241,7 +241,7 @@ def parsed_arguments(name, description):
     parser = argparse.ArgumentParser(
         prog=name,
         description=f"{styled_name}: {styled_description}",
-        formatter_class=TasHelpFormatter,
+        formatter_class=CliHelpFormatter,
         add_help=False,
     )
 
