@@ -2,12 +2,12 @@
    
   <h1>baseline 🔬</h1>
   
-  **_long pipeline name_**
+  **_{{ pipeline_long_name }}_**
 
   [![tests](https://github.com/OpenOmics/baseline/workflows/tests/badge.svg)](https://github.com/OpenOmics/baseline/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/baseline/workflows/docs/badge.svg)](https://github.com/OpenOmics/baseline/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/baseline?color=brightgreen)](https://github.com/OpenOmics/baseline/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/baseline)](https://github.com/OpenOmics/baseline/blob/main/LICENSE) 
   
   <i>
-    This is the home of the pipeline, baseline. Its long-term goals: to accurately ...insert goal, to infer ...insert goal, and to boldly ...insert goal like no pipeline before!
+    This is the home of the pipeline, baseline. Its long-term goals: {{ pipeline_mission_statement }}!
   </i>
 </div>
 
@@ -22,7 +22,7 @@ The **`./baseline`** pipeline is composed several inter-related sub commands to 
  * [<code>baseline <b>install</b></code>](https://openomics.github.io/baseline/usage/install/): Download reference files locally.
  * [<code>baseline <b>cache</b></code>](https://openomics.github.io/baseline/usage/cache/): Cache software containers locally.
 
-**baseline** is a comprehensive ...insert long description. It relies on technologies like [Singularity<sup>1</sup>](https://singularity.lbl.gov/) to maintain the highest-level of reproducibility. The pipeline consists of a series of data processing and quality-control steps orchestrated by [Snakemake<sup>2</sup>](https://snakemake.readthedocs.io/en/stable/), a flexible and scalable workflow management system, to submit jobs to a cluster.
+**baseline** is a comprehensive {{ pipeline_long_description }}. It relies on technologies like [Singularity<sup>1</sup>](https://singularity.lbl.gov/) to maintain the highest-level of reproducibility. The pipeline consists of a series of data processing and quality-control steps orchestrated by [Snakemake<sup>2</sup>](https://snakemake.readthedocs.io/en/stable/), a flexible and scalable workflow management system, to submit jobs to a cluster.
 
 As input, it accepts a set of FastQ files and can be run locally on a compute instance or on-premise using a cluster. A user can define the method or mode of execution. The pipeline can submit jobs to a cluster using a job scheduler like SLURM (more coming soon!). A hybrid approach ensures the pipeline is accessible to all users. Before getting started, we highly recommend reading through the [usage](https://openomics.github.io/baseline/usage/run/) section of each available sub command.
 

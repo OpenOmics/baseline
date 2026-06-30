@@ -27,7 +27,7 @@ in any work or product based on this material.
 USAGE:
   $ baseline <command> [OPTIONS]
 EXAMPLE:
-  $ baseline run --input *.R?.fastq.gz --output output/
+  $ baseline run --input *.fastq.gz --output output/
 """
 
 # Python standard library
@@ -264,7 +264,7 @@ def parsed_arguments(name, description):
         "--version",
         action="version",
         version=f"%(prog)s {__version__}",
-        help="Show the version of this package and exit.",
+        help="Show pipeline version and exit.",
     )
 
     # Setup sub-parsers for each subcommand, along
@@ -294,25 +294,24 @@ def parsed_arguments(name, description):
         Optional arguments are shown in square brackets above.
 
         {3}{4}Description:{5}
-          To run the ...long pipeline name with your data raw data, please
-        provide a space seperated list of FastQ (globbing is supported) and an output
+          To run the {{ long_pipeline_name }} with your data raw data, please
+        provide a space seperated list of FastQ (globbing is supported), and an output
         directory to store results.
 
         {3}{4}Required arguments:{5}
           --input INPUT [INPUT ...]
-                                Input FastQ file(s) to process. The pipeline does NOT
-                                support single-end data. FastQ files for one or more
-                                samples can be provided. Multiple input FastQ files
-                                should be seperated by a space. Globbing for multiple
-                                file is also supported.
-                                  Example: --input .tests/*.R?.fastq.gz
+                                Input FastQ file(s) to process. FastQ files for one
+                                or more samples can be provided. Multiple input FastQ
+                                files should be seperated by a space. Globbing for
+                                multiple files is also supported.
+                                  Example: --input .tests/*.fastq.gz
           --output OUTPUT
                                 Path to an output directory. This location is where
                                 the pipeline will create all of its output files, also
                                 known as the pipeline's working directory. If the user
                                 provided working directory has not been initialized,
                                 it will be created automatically.
-                                  Example: --output /data/$USER/output
+                                  Example: --output pipeline_output
 
         {3}{4}Analysis options:{5}
           ...coming soon!
@@ -379,7 +378,7 @@ def parsed_arguments(name, description):
                                 set to somewhere in /scratch. If you need to inject a
                                 variable into this string that should NOT be expanded,
                                 please quote this options value in single quotes.
-                                  Example: --tmp-dir '/scratch/$USER/'
+                                  Example: --tmp-dir '/data/scratch/$USER/'
           --threads THREADS
                                 Max number of threads for local processes. It is
                                 recommended setting this vaule to the maximum number
@@ -401,8 +400,8 @@ def parsed_arguments(name, description):
           module load singularity snakemake
 
           # Step 2A.) Dry-run the pipeline
-          {0} run --input .tests/*.R?.fastq.gz \\
-              --output /data/$USER/output \\
+          {0} run --input .tests/*.fastq.gz \\
+              --output pipeline_output \\
               --mode slurm \\
               --dry-run
 
@@ -410,8 +409,8 @@ def parsed_arguments(name, description):
           # The slurm mode will submit jobs to
           # the cluster. It is recommended running
           # the pipeline in this mode.
-          {0} run --input .tests/*.R?.fastq.gz \\
-              --output /data/$USER/output \\
+          {0} run --input .tests/*.fastq.gz \\
+              --output pipeline_output \\
               --mode slurm
 
         {2}{3}Version:{4}
@@ -570,7 +569,7 @@ def parsed_arguments(name, description):
                                 working directory. Please verify that the
                                 pipeline is not running before running
                                 this command.
-                                  Example: --output /data/$USER/output
+                                  Example: --output pipeline_output
 
         {3}{4}Misc Options:{5}
           -h, --help            Show usage information, help message,
@@ -582,7 +581,7 @@ def parsed_arguments(name, description):
     unlock_epilog = textwrap.dedent("""\
         {2}{3}Example:{4}
           # Unlock output directory of pipeline
-          {0} unlock --output /data/$USER/output
+          {0} unlock --output pipeline_output
 
         {2}{3}Version:{4}
           {1}

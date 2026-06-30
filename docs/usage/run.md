@@ -32,9 +32,9 @@ Each of the following arguments are required. Failure to provide a required argu
 > **Input FastQ file(s).**  
 > *type: file(s)*  
 > 
-> One or more FastQ files can be provided. From the command-line, each input file should seperated by a space. Globbing is supported! This makes selecting FastQ files easy. Input FastQ files should always be gzipp-ed.
+> One or more FastQ files can be provided. From the command-line, each input file should seperated by a space. Globbing is supported! This makes selecting FastQ files easy.
 > 
-> ***Example:*** `--input .tests/*.R?.fastq.gz`
+> ***Example:*** `--input .tests/*.fastq.gz`
 
 ---  
   `--output OUTPUT`
@@ -136,7 +136,7 @@ Each of the following arguments are optional, and do not need to be provided.
 > 
 > Path on the file system for writing temporary output files. By default, the temporary directory is set to '/lscratch/$SLURM_JOBID' for backwards compatibility with the NIH's Biowulf cluster; however, if you are running the pipeline on another cluster, this option will need to be specified. Ideally, this path should point to a dedicated location on the filesystem for writing tmp files. On many systems, this location is set to somewhere in /scratch. If you need to inject a variable into this string that should NOT be expanded, please quote this options value in single quotes.
 > 
-> ***Example:*** `--tmp-dir /scratch/$USER/`
+> ***Example:*** `--tmp-dir /data/scratch/$USER/`
 
 ### 2.4 Miscellaneous options  
 
@@ -160,7 +160,7 @@ module purge
 module load singularity snakemake
 
 # Step 2A.) Dry-run the pipeline
-./baseline run --input .tests/*.R?.fastq.gz \
+./baseline run --input .tests/*.fastq.gz \
     --sif-cache /data/OpenOmics/SIFs \
     --output /data/$USER/output \
     --mode slurm \
@@ -170,7 +170,7 @@ module load singularity snakemake
 # The slurm mode will submit jobs to 
 # the cluster. It is recommended running 
 # the pipeline in this mode.
-./baseline run --input .tests/*.R?.fastq.gz \
+./baseline run --input .tests/*.fastq.gz \
     --sif-cache /data/OpenOmics/SIFs \
     --output /data/$USER/output \
     --mode slurm
