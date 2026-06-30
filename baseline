@@ -355,7 +355,7 @@ def parsed_arguments(name, description):
                                 Overrides the $SINGULARITY_CACHEDIR variable. Images
                                 from remote registries are cached locally on the file
                                 system. By default, the singularity cache is set to:
-                                '/path/to/output/directory/.singularity/'. Please note
+                                '/path/to/output/directory/.singularity'. Please note
                                 that this cache cannot be shared across users.
                                   Example: --singularity-cache /data/$USER
           --sif-cache SIF_CACHE
@@ -602,7 +602,7 @@ def parsed_arguments(name, description):
     # Output Directory (analysis working directory)
     subparser_unlock.add_argument(
         '--output',
-        type = str,
+        type = lambda option: os.path.abspath(os.path.expanduser(option)),
         required = True,
         help = argparse.SUPPRESS
     )
@@ -636,7 +636,7 @@ def parsed_arguments(name, description):
         the local file system prior to execution. This command can be
         used to download the pipeline's required reference files.
 
-          Please Note: The resource bundle requires about 2GB of avail-
+          Please Note: The resource bundle requires about XXGB of avail-
         able disk space. If you are running the pipeline on the Biowulf
         cluster, you do NOT need to download the pipeline's resource
         bundle. It is already accessible to all HPC users.
@@ -685,8 +685,8 @@ def parsed_arguments(name, description):
           # Dry-run download of the resource bundle
           {0} install --ref-path /data/$USER/ref \\
               --force \\
-              --dry-run \\
-              --threads 12
+              --threads 12 \\
+              --dry-run
 
           # Download the resource bundle
           {0} install --ref-path /data/$USER/ref \\
@@ -809,7 +809,7 @@ def parsed_arguments(name, description):
         {2}Example:{3}
           # See what software containers
           # will be cached locally
-          {0} cache --dry-run --sif-cache /data/$USER/cache
+          {0} cache --sif-cache /data/$USER/cache --dry-run
 
           # Cache software containers
           {0} cache --sif-cache /data/$USER/cache

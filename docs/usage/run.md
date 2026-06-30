@@ -84,14 +84,14 @@ Each of the following arguments are optional, and do not need to be provided.
 > The slurm execution method will submit jobs to the [SLURM workload manager](https://slurm.schedmd.com/). It is recommended running baseline in this mode as execution will be significantly faster in a distributed environment. This is the default mode of execution.
 >
 > ***local***  
-> Local executions will run serially on compute instance. This is useful for testing, debugging, or when a users does not have access to a high performance computing environment. If this option is not provided, it will default to a local execution mode. 
+> Local executions will run serially on compute instance. This is useful for testing, debugging, or when a users does not have access to a high performance computing environment. If this option is not provided, it will default to a slurm execution mode. 
 > 
 > ***Example:*** `--mode slurm`
 
 ---  
   `--job-name JOB_NAME`  
 > **Set the name of the pipeline's master job.**  
-> *type: string*
+> *type: string*  
 > *default: pipeline_baseline*
 > 
 > When submitting the pipeline to a job scheduler, like SLURM, this option always you to set the name of the pipeline's master job. By default, the name of the pipeline's master job is set to `pipeline_baseline`.
@@ -102,7 +102,7 @@ Each of the following arguments are optional, and do not need to be provided.
   `--singularity-cache SINGULARITY_CACHE`  
 > **Overrides the $SINGULARITY_CACHEDIR environment variable.**  
 > *type: path*  
-> *default: `--output OUTPUT/.singularity`*
+> *default: `/path/to/output/directory/.singularity`*
 >
 > Singularity will cache image layers pulled from remote registries. This ultimately speeds up the process of pull an image from DockerHub if an image layer already exists in the singularity cache directory. By default, the cache is set to the value provided to the `--output` argument. Please note that this cache cannot be shared across users. Singularity strictly enforces you own the cache directory and will return a non-zero exit code if you do not own the cache directory! See the `--sif-cache` option to create a shareable resource. 
 > 
@@ -119,18 +119,18 @@ Each of the following arguments are optional, and do not need to be provided.
 
 ---  
   `--threads THREADS`   
-> **Max number of threads for each process.**  
+> **Max number of threads for local processes.**  
 > *type: int*  
 > *default: 2*
 > 
-> Max number of threads for each process. This option is more applicable when running the pipeline with `--mode local`.  It is recommended setting this vaule to the maximum number of CPUs available on the host machine.
+> Max number of threads for local process. This option is more applicable when running the pipeline with `--mode local`.  It is recommended setting this vaule to the maximum number of CPUs available on the host machine.
 > 
 > ***Example:*** `--threads 12`
 
 
 ---  
   `--tmp-dir TMP_DIR`   
-> **Max number of threads for each process.**  
+> **Path for writing temporary files.**  
 > *type: path*  
 > *default: `/lscratch/$SLURM_JOBID`*
 > 

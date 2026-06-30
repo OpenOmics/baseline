@@ -19,7 +19,7 @@ The pipeline uses a set of reference files to process the data. These reference 
 
 Since most resource bundles are very large; we recommend using multiple threads for pulling reference files concurrently. The resource bundle can be very large so please ensure you have sufficent disk space prior to running this sub command.
 
-**Please Note:** The resource bundle requires about `X GB` of available disk space. If you are running the pipeline on the Biowulf cluster, you do *NOT* need to download the pipeline's resource bundle. It is already accessible to all HPC users. This sub command is for users running the pipeline outside of the Biowulf cluster.
+**Please Note:** The resource bundle requires about `XX GB` of available disk space. If you are running the pipeline on the Biowulf cluster, you do *NOT* need to download the pipeline's resource bundle. It is already accessible to all HPC users. This sub command is for users running the pipeline outside of the Biowulf cluster.
 
 Downloading the resource bundle is fast and easy! In its most basic form, <code>baseline <b>install</b></code> only has *one required input*.
 
