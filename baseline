@@ -323,13 +323,13 @@ def parsed_arguments(name, description):
                                 Additional modes of exection are coming soon, default:
                                 slurm.
                                 Here is a brief description of each mode:
-                                   • local: uses local method of execution. local runs
+                                 • local: uses local method of execution. local runs
                                 will run serially on compute instance. This is useful
                                 for testing, debugging, or when a users does not have
                                 access to a  high  performance  computing environment.
                                 If this option is not provided, it will default to a
                                 slurm mode of execution.
-                                   • slurm: uses slurm execution backend. This method
+                                 • slurm: uses slurm execution backend. This method
                                 will submit jobs to a  cluster  using sbatch. It is
                                 recommended running the pipeline in this mode as it
                                 will be significantly faster.

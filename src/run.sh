@@ -59,9 +59,7 @@ Required Arguments:
                                  intermediate, temporary output files. Any
                                  temporary output files will be written to
                                  this location. On Biowulf, it should be
-                                 set to '/lscratch/\$SLURM_JOBID/'. On FRCE,
-                                 this value should be set to the following:
-                                 '/scratch/cluster_scratch/\$USER/'.
+                                 set to '/lscratch/\$SLURM_JOBID/'.
 OPTIONS:
   -c,  --cache  [Type: Path]   Path to singularity cache. If not provided,
                                 the path will default to the current working
