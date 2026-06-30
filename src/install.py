@@ -72,12 +72,12 @@ def assemble_target(sub_args, chunks):
     )
 
     for chunk in local_chunks:
-        _remove(chunk, 'Warning: failed to remove local download chunk... {}')
+        _remove(chunk, 'Warning: failed to remove local download chunk...')
 
     print('Extracting tarball... {0}'.format(tarball))
     unpack_archive(tarball, sub_args.ref_path)
 
-    _remove(tarball, 'Warning: failed to remove resource bundle tarball... {}')
+    _remove(tarball, 'Warning: failed to remove resource bundle tarball...')
 
 
 def _remove(path, warning):
