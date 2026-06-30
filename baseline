@@ -476,7 +476,7 @@ def parsed_arguments(name, description):
         '--job-name',
         type = str,
         required = False,
-        default = 'pl-{0}'.format(name),
+        default = 'pipeline_{0}'.format(name),
         help = argparse.SUPPRESS
     )
 
