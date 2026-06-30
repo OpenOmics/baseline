@@ -92,9 +92,9 @@ Each of the following arguments are optional, and do not need to be provided.
   `--job-name JOB_NAME`  
 > **Set the name of the pipeline's master job.**  
 > *type: string*
-> *default: pl:baseline*
+> *default: pipeline_baseline*
 > 
-> When submitting the pipeline to a job scheduler, like SLURM, this option always you to set the name of the pipeline's master job. By default, the name of the pipeline's master job is set to "pl:baseline".
+> When submitting the pipeline to a job scheduler, like SLURM, this option always you to set the name of the pipeline's master job. By default, the name of the pipeline's master job is set to `pipeline_baseline`.
 > 
 > ***Example:*** `--job-name pl_id-42`
 

@@ -822,7 +822,7 @@ def dryrun(outdir, config="config.json", snakefile=os.path.join("workflow", "Sna
 
 
 def runner(mode, outdir, alt_cache, logger, additional_bind_paths="",
-           threads=2, jobname="pl:master", submission_script="run.sh",
+           threads=2, jobname="pipeline_main_job", submission_script="run.sh",
            tmp_dir="/lscratch/$SLURM_JOBID/"):
     """Runs the pipeline via the selected executor: local or slurm. 'local' runs
     serially on the current compute instance; 'slurm' submits jobs to the cluster
