@@ -1,9 +1,9 @@
 # Python standard library
 import json
 import os
-import sys
-from os import listdir
 from os.path import join
+# 3rd party imports
+from snakemake.io import expand
 # Local imports
 from scripts.common import (
     allocated,
@@ -13,10 +13,31 @@ from scripts.common import (
 )
 
 
-# Final ouput files of the pipeline
+# Global workflow variables
+configfile: "config.json"                    # Generated from user input and config/*.json
+BINDPATHS = config["bindpaths"]              # Singularity paths to bind to the container
+SAMPLES   = config["samples"]                # Base name of input samples
+WORKPATH  = config["options"]["output"]      # Pipeline output directory
+RUNMODE   = config["options"]["mode"]        # Pipeline run mode, i.e: local or slurm
+LTHREADS  = config["options"]["threads"]     # Max number of threads for local processes
+
+
+# Read in resource information,
+# containing information about
+# threads, mem, walltimes, etc.
+# For local mode, the max number
+# of threads is already capped
+# via the --cores option. This
+# is for when the pipeline is
+# run in slurm mode.
+with open(join(WORKPATH, "config", "cluster.json")) as fh:
+    cluster = json.load(fh)
+
+
+# Final output files of the pipeline
 rule all:
     input:
-        []
+        expand(),
 
 
 # Import rules

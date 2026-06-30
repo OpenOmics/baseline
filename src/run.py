@@ -62,8 +62,8 @@ ILLUMINA_FASTQ_RENAME = {
     r".R1.(?P<lane>...).f(ast)?q.gz$": ILLUMINA_R1,
     r".R2.(?P<lane>...).f(ast)?q.gz$": ILLUMINA_R2,
     # _1/_2 style, e.g. sample_1.fastq.gz
-    r"_1\.f(ast)?q\.gz$": ILLUMINA_R1,
-    r"_2\.f(ast)?q\.gz$": ILLUMINA_R2,
+    r"_1.f(ast)?q.gz$": ILLUMINA_R1,
+    r"_2.f(ast)?q.gz$": ILLUMINA_R2,
 }
 
 # Endedness signal written to config['project']['nends'].
@@ -812,8 +812,8 @@ def dryrun(outdir, config="config.json", snakefile=os.path.join("workflow", "Sna
         # OSError [Errno 2] occurs when the snakemake
         # command is not found.
         if e.errno == 2 and not which("snakemake"):
-            err("\n{COLORS.red}Error: Are snakemake AND singularity in your $PATH?{COLORS.end}")
-            fatal("{COLORS.red}Please check before proceeding again!{COLORS.end}")
+            err(f"\n{COLORS.red}Error: Are snakemake AND singularity in your $PATH?{COLORS.end}")
+            fatal(f"{COLORS.red}Please check before proceeding again!{COLORS.end}")
         else:
             raise
     except subprocess.CalledProcessError as e:
