@@ -1,27 +1,43 @@
 # Python standard library
+import json
+import os
 from os.path import join
-from os import listdir
-import os, sys, json
-
-# 3rd party imports from pypi
-from snakemake.workflow import workflow as wf_api
-from snakemake.utils import R
-
+# 3rd party imports
+from snakemake.io import expand
 # Local imports
 from scripts.common import (
     allocated,
-    provided, 
+    provided,
     references,
     str_bool
 )
 
 
-# Final ouput files of the pipeline
+# Global workflow variables
+configfile: "config.json"                    # Generated from user input and config/*.json
+BINDPATHS = config["bindpaths"]              # Singularity paths to bind to the container
+SAMPLES   = config["samples"]                # Base name of input samples
+WORKPATH  = config["options"]["output"]      # Pipeline output directory
+
+
+# Read in resource information,
+# containing information about
+# threads, mem, walltimes, etc.
+# For local mode, the max number
+# of threads is already capped
+# via the --cores option. This
+# is for when the pipeline is
+# run in slurm mode.
+with open(join(WORKPATH, "config", "cluster.json")) as fh:
+    cluster = json.load(fh)
+
+
+# Final output files of the pipeline
 rule all:
     input:
         []
 
 
-# Import rules 
+# Import rules
 include: join("rules", "common.smk")
 include: join("rules", "hooks.smk")

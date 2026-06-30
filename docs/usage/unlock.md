@@ -45,6 +45,7 @@ Each of the following arguments are optional and do not need to be provided.
 
 
 ## 3. Example
+
 ```bash 
 # Step 0.) Grab an interactive node (do not run on head node)
 srun -N 1 -n 1 --time=12:00:00 -p interactive --mem=8gb  --cpus-per-task=4 --pty bash

@@ -8,12 +8,12 @@ This part of the documentation describes options and concepts for <code>baseline
 Setting up the baseline pipeline is fast and easy! In its most basic form, <code>baseline <b>run</b></code> only has *two required inputs*.
 
 ## 2. Synopsis
+
 ```text
 $ baseline run [--help] \
-      [--mode {slurm,local}] [--job-name JOB_NAME] [--batch-id BATCH_ID] \
-      [--tmp-dir TMP_DIR] [--silent] [--sif-cache SIF_CACHE] \ 
-      [--singularity-cache SINGULARITY_CACHE] \
-      [--dry-run] [--threads THREADS] \
+      [--dry-run] [--job-name JOB_NAME] [--mode {{slurm,local}}] \
+      [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE]  \ 
+      [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \
       --input INPUT [INPUT ...] \
       --output OUTPUT
 ```
@@ -29,12 +29,12 @@ Use you can always use the `-h` option for information on a specific command.
 Each of the following arguments are required. Failure to provide a required argument will result in a non-zero exit-code.
 
   `--input INPUT [INPUT ...]`  
-> **Input FastQ or BAM file(s).**  
+> **Input FastQ file(s).**  
 > *type: file(s)*  
 > 
-> One or more FastQ files can be provided. The pipeline does NOT support single-end data. From the command-line, each input file should seperated by a space. Globbing is supported! This makes selecting FastQ files easy. Input FastQ files should always be gzipp-ed.
+> One or more FastQ files can be provided. From the command-line, each input file should seperated by a space. Globbing is supported! This makes selecting FastQ files easy.
 > 
-> ***Example:*** `--input .tests/*.R?.fastq.gz`
+> ***Example:*** `--input .tests/*.fastq.gz`
 
 ---  
   `--output OUTPUT`
@@ -43,7 +43,7 @@ Each of the following arguments are required. Failure to provide a required argu
 >   
 > This location is where the pipeline will create all of its output files, also known as the pipeline's working directory. If the provided output directory does not exist, it will be created automatically.
 > 
-> ***Example:*** `--output /data/$USER/baseline_out`
+> ***Example:*** `--output pipeline_output`
 
 ### 2.2 Analysis options
 
@@ -84,17 +84,17 @@ Each of the following arguments are optional, and do not need to be provided.
 > The slurm execution method will submit jobs to the [SLURM workload manager](https://slurm.schedmd.com/). It is recommended running baseline in this mode as execution will be significantly faster in a distributed environment. This is the default mode of execution.
 >
 > ***local***  
-> Local executions will run serially on compute instance. This is useful for testing, debugging, or when a users does not have access to a high performance computing environment. If this option is not provided, it will default to a local execution mode. 
+> Local executions will run serially on compute instance. This is useful for testing, debugging, or when a users does not have access to a high performance computing environment. If this option is not provided, it will default to a slurm execution mode. 
 > 
 > ***Example:*** `--mode slurm`
 
 ---  
   `--job-name JOB_NAME`  
 > **Set the name of the pipeline's master job.**  
-> *type: string*
-> *default: pl:baseline*
+> *type: string*  
+> *default: pipeline_baseline*
 > 
-> When submitting the pipeline to a job scheduler, like SLURM, this option always you to set the name of the pipeline's master job. By default, the name of the pipeline's master job is set to "pl:baseline".
+> When submitting the pipeline to a job scheduler, like SLURM, this option always you to set the name of the pipeline's master job. By default, the name of the pipeline's master job is set to `pipeline_baseline`.
 > 
 > ***Example:*** `--job-name pl_id-42`
 
@@ -102,7 +102,7 @@ Each of the following arguments are optional, and do not need to be provided.
   `--singularity-cache SINGULARITY_CACHE`  
 > **Overrides the $SINGULARITY_CACHEDIR environment variable.**  
 > *type: path*  
-> *default: `--output OUTPUT/.singularity`*
+> *default: `/path/to/output/directory/.singularity`*
 >
 > Singularity will cache image layers pulled from remote registries. This ultimately speeds up the process of pull an image from DockerHub if an image layer already exists in the singularity cache directory. By default, the cache is set to the value provided to the `--output` argument. Please note that this cache cannot be shared across users. Singularity strictly enforces you own the cache directory and will return a non-zero exit code if you do not own the cache directory! See the `--sif-cache` option to create a shareable resource. 
 > 
@@ -115,30 +115,31 @@ Each of the following arguments are optional, and do not need to be provided.
 >
 > Uses a local cache of SIFs on the filesystem. This SIF cache can be shared across users if permissions are set correctly. If a SIF does not exist in the SIF cache, the image will be pulled from Dockerhub and a warning message will be displayed. The `baseline cache` subcommand can be used to create a local SIF cache. Please see `baseline cache` for more information. This command is extremely useful for avoiding DockerHub pull rate limits. It also remove any potential errors that could occur due to network issues or DockerHub being temporarily unavailable. We recommend running baseline with this option when ever possible.
 > 
-> ***Example:*** `--singularity-cache /data/$USER/SIFs`
+> ***Example:*** `--sif-cache /data/OpenOmics/SIFs`
 
 ---  
   `--threads THREADS`   
-> **Max number of threads for each process.**  
+> **Max number of threads for local processes.**  
 > *type: int*  
 > *default: 2*
 > 
-> Max number of threads for each process. This option is more applicable when running the pipeline with `--mode local`.  It is recommended setting this vaule to the maximum number of CPUs available on the host machine.
+> Max number of threads for local process. This option is more applicable when running the pipeline with `--mode local`.  It is recommended setting this vaule to the maximum number of CPUs available on the host machine.
 > 
 > ***Example:*** `--threads 12`
 
 
 ---  
   `--tmp-dir TMP_DIR`   
-> **Max number of threads for each process.**  
+> **Path for writing temporary files.**  
 > *type: path*  
 > *default: `/lscratch/$SLURM_JOBID`*
 > 
 > Path on the file system for writing temporary output files. By default, the temporary directory is set to '/lscratch/$SLURM_JOBID' for backwards compatibility with the NIH's Biowulf cluster; however, if you are running the pipeline on another cluster, this option will need to be specified. Ideally, this path should point to a dedicated location on the filesystem for writing tmp files. On many systems, this location is set to somewhere in /scratch. If you need to inject a variable into this string that should NOT be expanded, please quote this options value in single quotes.
 > 
-> ***Example:*** `--tmp-dir /scratch/$USER/`
+> ***Example:*** `--tmp-dir /data/scratch/$USER/`
 
 ### 2.4 Miscellaneous options  
+
 Each of the following arguments are optional, and do not need to be provided. 
 
   `-h, --help`            
@@ -150,6 +151,7 @@ Each of the following arguments are optional, and do not need to be provided.
 > ***Example:*** `--help`
 
 ## 3. Example
+
 ```bash 
 # Step 1.) Grab an interactive node,
 # do not run on head node!
@@ -158,16 +160,18 @@ module purge
 module load singularity snakemake
 
 # Step 2A.) Dry-run the pipeline
-./baseline run --input .tests/*.R?.fastq.gz \
-                  --output /data/$USER/output \
-                  --mode slurm \
-                  --dry-run
+./baseline run --input .tests/*.fastq.gz \
+    --sif-cache /data/OpenOmics/SIFs \
+    --output /data/$USER/output \
+    --mode slurm \
+    --dry-run
 
 # Step 2B.) Run the baseline pipeline
 # The slurm mode will submit jobs to 
 # the cluster. It is recommended running 
 # the pipeline in this mode.
-./baseline run --input .tests/*.R?.fastq.gz \
-                  --output /data/$USER/output \
-                  --mode slurm
+./baseline run --input .tests/*.fastq.gz \
+    --sif-cache /data/OpenOmics/SIFs \
+    --output /data/$USER/output \
+    --mode slurm
 ```

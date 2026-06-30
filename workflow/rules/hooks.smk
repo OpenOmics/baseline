@@ -1,8 +1,8 @@
-# Adding handlers for displaying status of the 
-# pipeline and for getting job information for 
+# Adding handlers for displaying status of the
+# pipeline and for getting job information for
 # previously submitted jobs using `jobby`:
 # https://github.com/OpenOmics/scribble/blob/main/scripts/jobby/jobby
-if config['options']['mode'] == 'slurm':
+if config["options"]["mode"] == "slurm":
     onstart:
         shell(
             """
@@ -28,7 +28,7 @@ if config['options']['mode'] == 'slurm':
         shell(
             """
             # Get job information on all
-            # previously submitted jobs 
+            # previously submitted jobs
             sleep 15; rm -f COMPLETED FAILED RUNNING;
             timestamp=$(date +"%Y-%m-%d_%H-%M-%S");
             ./workflow/scripts/jobby \\
@@ -46,8 +46,8 @@ if config['options']['mode'] == 'slurm':
                 touch job_information_${{timestamp}}.tsv
             }}
 
-            # Get information on any child 
-            # job(s) that may have failed 
+            # Get information on any child
+            # job(s) that may have failed
             grep --color=never \\
                 '^jobid\\|FAILED' \\
                 job_information_${{timestamp}}.tsv \\
@@ -57,7 +57,7 @@ if config['options']['mode'] == 'slurm':
                 # is run and no child jobs are submitted
                 touch failed_jobs_${{timestamp}}.tsv
             }}
-            touch COMPLETED  
+            touch COMPLETED
             """
         )
 
@@ -65,7 +65,7 @@ if config['options']['mode'] == 'slurm':
         shell(
             """
             # Get job information on all
-            # previously submitted jobs 
+            # previously submitted jobs
             sleep 15; rm -f COMPLETED FAILED RUNNING;
             timestamp=$(date +"%Y-%m-%d_%H-%M-%S");
             ./workflow/scripts/jobby \\
@@ -83,8 +83,8 @@ if config['options']['mode'] == 'slurm':
                 touch job_information_${{timestamp}}.tsv
             }}
 
-            # Get information on any child 
-            # job(s) that may have failed 
+            # Get information on any child
+            # job(s) that may have failed
             grep --color=never \\
                 '^jobid\\|FAILED' \\
                 job_information_${{timestamp}}.tsv \\
