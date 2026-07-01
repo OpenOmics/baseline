@@ -1,9 +1,55 @@
+"""
+Hitchhikers guide for writing new rules in this pipeline.
+
+A. Reading inputs
+   User-provided files are symlinked into WORKPATH/inputs/. Read the
+   original inputs from there, e.g.:
+       join(WORKPATH, "inputs", "{name}.R1.fastq.gz")
+       join(WORKPATH, "inputs", "{name}.R2.fastq.gz")
+
+B. Writing outputs
+   Treat WORKPATH/inputs/ as read-only. Write generated outputs
+   elsewhere under WORKPATH, usually to per-sample or project-level
+   paths, e.g.:
+       join(WORKPATH, "{name}", "md5", "{name}.R1.fastq.gz.md5")
+       join(WORKPATH, "project", "counts", "matrix.tsv")
+
+C. Resources and threads
+   Every rule should define its resources and threads with allocated().
+   The rule name passed to allocated() must match the Snakemake rule
+   name, e.g.:
+       resources:
+           partition = allocated("partition", "rule_name", cluster),
+           mem       = allocated("mem",       "rule_name", cluster),
+           time      = allocated("time",      "rule_name", cluster),
+           gres      = allocated("gres",      "rule_name", cluster),
+       threads:
+           int(allocated("threads", "rule_name", cluster))
+
+   Edit config/cluster.json to change threads, memory, time, partition,
+   or gres. Add a key matching the rule name to override "__default__".
+
+D. Containers
+   Edit config/containers.json to add the container image keys used by
+   the rule, e.g.:
+       container:
+           config["images"]["image-key"]
+
+E. Other configuration
+   Edit config/genome.json for reference paths, config/modules.json for
+   tool/module settings, and config/config.json for global options such
+   as input_type and layout.
+
+F. Wiring it up
+   Don't forget to import any new rules into the Snakefile and update
+   "rule all" to include the new output files as final targets. If you
+   add a new rule and forgot to add it's output(s) to rule all, Snakemake
+   will not run the rule.
+"""
 # Python standard library
 import json
 import os
 from os.path import join
-# 3rd party imports
-from snakemake.io import expand
 # Local imports
 from scripts.common import (
     allocated,
@@ -32,12 +78,15 @@ with open(join(WORKPATH, "config", "cluster.json")) as fh:
     cluster = json.load(fh)
 
 
-# Final output files of the pipeline
+# Final output files of the pipeline,
+# see workflow/rules/example.smk for
+# an overview of how rules should be
+# setup and structured.
 rule all:
     input:
         []
 
-
 # Import rules
 include: join("rules", "common.smk")
+# include: join("rules", "example.smk")
 include: join("rules", "hooks.smk")

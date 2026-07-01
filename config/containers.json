@@ -1,4 +1,5 @@
 {
     "images": {
+        "ubuntu-22.04": "docker://ubuntu:22.04"
     }
 }
