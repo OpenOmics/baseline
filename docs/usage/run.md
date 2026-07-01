@@ -14,6 +14,7 @@ $ baseline run [--help] \
       [--dry-run] [--job-name JOB_NAME] [--mode {{slurm,local}}] \
       [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE]  \ 
       [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \
+      [--overwrite-pipeline-template] \
       --input INPUT [INPUT ...] \
       --output OUTPUT
 ```
@@ -137,6 +138,15 @@ Each of the following arguments are optional, and do not need to be provided.
 > Path on the file system for writing temporary output files. By default, the temporary directory is set to '/lscratch/$SLURM_JOBID' for backwards compatibility with the NIH's Biowulf cluster; however, if you are running the pipeline on another cluster, this option will need to be specified. Ideally, this path should point to a dedicated location on the filesystem for writing tmp files. On many systems, this location is set to somewhere in /scratch. If you need to inject a variable into this string that should NOT be expanded, please quote this options value in single quotes.
 > 
 > ***Example:*** `--tmp-dir /data/scratch/$USER/`
+
+---  
+  `--overwrite-pipeline-template`   
+> **Overwrite pipeline template in output directory.**  
+> *type: boolean flag*
+> 
+> Overwrite pipeline template files in an existing output directory. When this option is provided, the pipeline replaces the existing `workflow/`, `resources/`, and `config/` directories in the output directory with fresh copies from the current pipeline installation. This is mainly useful for developers who want to re-run or test an existing output directory after updating the pipeline template or workflow. 
+> 
+> ***Example:*** `--overwrite-pipeline-template`
 
 ### 2.4 Miscellaneous options  
 

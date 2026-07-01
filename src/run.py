@@ -7,7 +7,7 @@ import os
 import re
 import subprocess
 import sys
-from shutil import copytree
+from shutil import copytree, rmtree
 # Local imports
 from utils import (
     Colors,
@@ -109,6 +109,7 @@ def build_config(sub_args, pl_home):
         output_path=sub_args.output,
         input_type=input_type,
         links=sub_args.input,
+        refresh_template=sub_args.overwrite_pipeline_template
     )
 
     config = setup(
@@ -435,7 +436,7 @@ def _verify_mates(ifiles):
 
 
 # Output directory initialization
-def init(repo_path, output_path, input_type, links=None, required=None):
+def init(repo_path, output_path, input_type, links=None, required=None, refresh_template=False):
     """Initialize the output directory. If the user provides an output path that
     already exists as a file, an OSError is raised. An existing directory is not
     recreated.
@@ -449,6 +450,8 @@ def init(repo_path, output_path, input_type, links=None, required=None):
         Files to symlink into output_path
     @param required list[<str>]:
         Folders to copy over into output_path
+    @refresh_template <bool>:
+        Overwrite existing pipeline template files
     @return list[<str>]:
         Renamed input symlinks
     """
@@ -465,49 +468,73 @@ def init(repo_path, output_path, input_type, links=None, required=None):
         ))
     # Copy required folders to run the pipeline from
     # the github repo into the output directory.
-    copy_safe(source=repo_path, target=output_path, resources=required)
+    copy_safe(source=repo_path, target=output_path, resources=required, refresh_template=refresh_template)
     return sym_safe(input_data=links, target=output_path, input_type=input_type)
 
 
-def copy_safe(source, target, resources=None):
-    """Recursively copies each resource into the target location. Existing
-    target paths are NOT overwritten.
+def copy_safe(source, target, resources=None, refresh_template=False):
+    """Recursively copies each resource into the target location.
+    Existing target paths are not overwritten unless refresh_template=True.
+    When refresh_template=True, each existing scaffold directory is removed
+    and copied again from the source repository.
     @param source <str>:
         Prefix PATH for each resource
     @param target <str>:
         Target path for templates and resources
     @param resources list[<str>]:
         Paths to copy over to the target location
+    @param refresh_template <bool>:
+        If True, existing scaffold directories are deleted and re-copied
     """
     resources = resources or []
+
     for resource in resources:
+        source_path = os.path.join(source, resource)
         destination = os.path.join(target, resource)
+
+        if exists(destination) and refresh_template:
+            if os.path.isdir(destination):
+                rmtree(destination)
+            else:
+                os.remove(destination)
+
         if not exists(destination):
-            copytree(os.path.join(source, resource), destination)
+            copytree(source_path, destination)
 
 
-def sym_safe(input_data, target, input_type):
-    """Creates re-named symlinks for each input file based on the declared
-    input_type. Illumina FastQs are normalized to canonical .R1/.R2 names. All
-    other supported types are validated and linked as-is. Existing symlinks are
-    not recreated; relative source paths are converted to absolute paths.
+def sym_safe(input_data, target, input_type, input_dirname="inputs"):
+    """Creates re-named symlinks for each input file in target/inputs/.
+    Illumina FastQs are normalized to canonical .R1/.R2 names. All other
+    supported types are validated and linked as-is. Existing symlinks are not
+    recreated; relative source paths are converted to absolute paths.
     @param input_data list[<str>]:
-        Input files to symlink to target location
+        Input files to symlink to target/input_dirname
     @param target <str>:
-        Target path for the renamed symlinks
+        Pipeline output directory
     @param input_type <str>:
         Declared input type from config
+    @param input_dirname <str>:
+        Name of child directory where input symlinks are created
     @return list[<str>]:
-        Renamed input files
+        Renamed input symlink paths
     """
+    # Input files are symlinked into a inputs
+    # subdirectory of the output directory to
+    # avoid cluttering the output directory.
+    input_dir = os.path.join(target, input_dirname)
+    if not exists(input_dir):
+        os.makedirs(input_dir)
+
     renamed_inputs = []
     for file in input_data:
         filename = os.path.basename(file)
-        renamed = os.path.join(target, rename(filename, input_type))
+        renamed = os.path.join(input_dir, rename(filename, input_type))
         renamed_inputs.append(renamed)
+
         if not exists(renamed):
             # Follow source symlinks to resolve any binding issues
             os.symlink(os.path.abspath(os.path.realpath(file)), renamed)
+
     return renamed_inputs
 
 
