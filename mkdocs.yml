@@ -53,8 +53,6 @@ extra:
       link: https://github.com/OpenOmics
     - icon: fontawesome/brands/docker
       link: https://hub.docker.com/u/skchronicles
-  version:
-    provider: mike
 
 # Extensions
 markdown_extensions:
