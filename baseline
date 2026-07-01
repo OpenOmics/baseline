@@ -288,6 +288,7 @@ def parsed_arguments(name, description):
                 [--dry-run] [--job-name JOB_NAME] [--mode {{slurm,local}}] \\
                 [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE] \\
                 [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \\
+                [--overwrite-pipeline-template] \\
                 --input INPUT [INPUT ...] \\
                 --output OUTPUT
 
@@ -384,6 +385,16 @@ def parsed_arguments(name, description):
                                 recommended setting this vaule to the maximum number
                                 of CPUs available on the host machine, default: 2.
                                   Example: --threads: 16
+          --overwrite-pipeline-template
+                                Overwrites pipeline template files in an existing
+                                output directory. If provided, the pipeline will
+                                replace the workflow, resources, and config dirs
+                                in an output directory with new copies where the
+                                pipeline was installed. This flag is useful for
+                                developers making/testing changes to an existing
+                                output directory after the pipeline template or
+                                workflow has been updated.
+                                  Example: --overwrite-template-files
 
         {3}{4}Misc Options:{5}
           -h, --help            Show usage information, help message, and exit.
@@ -539,6 +550,19 @@ def parsed_arguments(name, description):
         required = False,
         default = 2,
         help = argparse.SUPPRESS
+    )
+
+    # Refresh pipeline template files
+    # in an output directory, this will
+    # re-copy the folders in the output
+    # directory that are needed to run
+    # the pipeline, useful for devs.
+    subparser_run.add_argument(
+        '--overwrite-pipeline-template',
+        action='store_true',
+        required=False,
+        default=False,
+        help=argparse.SUPPRESS
     )
 
     # Sub-parser for the "unlock" sub-command
