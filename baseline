@@ -74,7 +74,7 @@ __authors__ = 'Skyler Kuhn'
 __email__ = 'skyler.kuhn@nih.gov'
 __home__  =  os.path.dirname(os.path.abspath(__file__))
 _name = os.path.basename(sys.argv[0])
-_description = 'An awesome baseline pipeline'
+_description = '{{ pipeline_long_name }}'
 
 
 def unlock(sub_args):
@@ -295,9 +295,9 @@ def parsed_arguments(name, description):
         Optional arguments are shown in square brackets above.
 
         {3}{4}Description:{5}
-          To run the pipeline with your data raw data, please provide a space
-        seperated list of FastQ (globbing is supported), and an output directory
-        to store results.
+          To run the pipeline with your data, please provide a space seperated
+        list of FastQ files (globbing is supported) and an output directory to
+        store results.
 
         {3}{4}Required arguments:{5}
           --input INPUT [INPUT ...]
