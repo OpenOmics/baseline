@@ -2,14 +2,11 @@
 # -*- coding: UTF-8 -*-
 
 # Python standard library
-from __future__ import print_function
 import argparse
 import os
 import shutil
 import time
 from concurrent.futures import ThreadPoolExecutor
-# 3rd-party packages
-import requests
 # Local imports
 from utils import (
     err,
@@ -49,15 +46,19 @@ def retry(times=5, exceptions=(Exception)):
                     return func(*args, **kwargs)
                 except exceptions as e:
                     # Default expection, Exception
-                    err('Function failed: {0}'.format(func.__name__))
-                    err('\t@args: {0}'.format(args))
-                    err('\t@kwargs: {0}'.format(kwargs))
-                    err('\t@reason: {0}'.format(e))
+                    err(
+                        f"Function failed: {func.__name__}\n"
+                        f"  • args: {args}\n"
+                        f"  • kwargs: {kwargs}\n"
+                        f"  • reason: {e}"
+                    )
                     # Increase backoff: 4, 16, 64, 256, 1024, 4096...
                     attempt += 1
                     delay = 4**attempt
-                    err("Attempt: {0}/{1}".format(attempt, times))
-                    err("Trying again in {0} seconds!\n".format(delay))
+                    err(
+                        f"Attempt: {attempt}/{times}\n"
+                        f"Trying again in {delay} seconds!\n"
+                    )
                     time.sleep(delay)
             # Could not succesfully run the given function
             # in its alloted number of tries, exit with error
@@ -196,6 +197,22 @@ def cli():
 
 
 def main(options):
+    # 3rd-party packages
+    try: import requests
+    except ModuleNotFoundError as e:
+        # This is the only 3rd-party package
+        # in the codebase. The install command
+        # is not frequently used and most users
+        # will already have it installed so it's
+        # not worth adding in a requirements.txt
+        # and asking them to create a virtual
+        # enviornment.
+        fatal(
+            'Fatal: Missing required 3rd-party package: requests\n'
+            'Please install this package with pip:\n'
+            ' $ pip install requests\n'
+            'Exiting...'
+        )
     # Check that number of MD5s
     # that were provided is equal
     # to the number of input URLs
