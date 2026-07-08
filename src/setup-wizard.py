@@ -80,7 +80,7 @@ TEST_SAMPLE_COUNT = 4
 # exclusions in the original find/sed one-liners. `src`/`workflow` hold pipeline
 # logic that legitimately uses the word "baseline" as a term of art, and `.git`
 # / version / changelog files must stay byte-for-byte intact.
-EXCLUDE_PATH_PARTS = {".git", "src", "workflow", ".baseline_version", "CHANGELOG.md"}
+EXCLUDE_PATH_PARTS = {".git", "src", "workflow", ".baseline_version", "CHANGELOG.md", ".env", ".venv", "env", "venv"}
 
 # Specific files (relative to repo root) to leave entirely untouched. The
 # release-please workflow checks if repo is baseline template before it gets
