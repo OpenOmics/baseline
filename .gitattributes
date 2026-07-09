@@ -1,2 +1,8 @@
 *.smk linguist-language=Python
+*.snakefile linguist-language=Python
 Snakefile linguist-language=Python
+
+*.Rmd linguist-language=R
+*.rmd linguist-language=R
+*.Qmd linguist-language=R
+*.qmd linguist-language=R
