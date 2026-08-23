@@ -23,15 +23,16 @@ from . import version as __version__
 
 # Constants
 # Handling different input filetypes, i.e illumina
-# fastq files, bam, cram, vcf, tsv, csv, ont fastqs,
-# ont fast5, ont pod5, etc. The input_type is defined
-# in config/config.json under options.input_type, so
-# the type is never inferred from filenames.
+# fastq files, fasta, bam, cram, vcf, tsv, csv, ont
+# fastqs, ont fast5, ont pod5, etc. The input_type is
+# defined in config/config.json under options.input_type,
+# so the type is never inferred from filenames.
 SUPPORTED_INPUT_FILETYPES = {
     "illumina_fastq": {"fastq": True, "is_dir": False, "exts": [".R1.fastq.gz", ".R2.fastq.gz"]},
-    "ont_fastq": {"fastq": True,  "is_dir": False, "exts": [".fastq.gz", ".fq.gz", ".fastq", ".fq"]},
+    "ont_fastq": {"fastq": True,  "is_dir": False, "exts": [".fastq.gz"]},
     "ont_fast5": {"fastq": False, "is_dir": True, "exts": [".fast5"]},
     "ont_pod5":  {"fastq": False, "is_dir": True, "exts": [".pod5"]},
+    "fasta": {"fastq": False, "is_dir": False, "exts": [".fa.gz"]},
     "bam":  {"fastq": False, "is_dir": False, "exts": [".bam"]},
     "cram": {"fastq": False, "is_dir": False, "exts": [".cram"]},
     "vcf":  {"fastq": False, "is_dir": False, "exts": [".vcf.gz", ".vcf"]},
@@ -69,7 +70,7 @@ ILLUMINA_FASTQ_RENAME = {
 # Endedness signal written to config['project']['nends'].
 NENDS_SINGLE = 1   # single-end / single-file-per-sample
 NENDS_PAIRED = 2   # paired-end Illumina FastQ
-NENDS_OTHER = -1   # non-fastq (bam, cram, vcf, tables, ont signal dirs)
+NENDS_OTHER = -1   # non-fastq (fasta, bam, cram, vcf, tables, ont signal dirs)
 NENDS_LABELS = {NENDS_SINGLE: "single-end", NENDS_PAIRED: "paired-end", NENDS_OTHER: "other"}
 
 # Colorized output for user-facing messages
@@ -279,8 +280,8 @@ def matches_type(filename, input_type):
         Declared input type from config
     @return <bool>
     """
-    name = os.path.basename(filename).lower()
-    return any(name.endswith(ext.lower()) for ext in extensions_for(input_type))
+    name = os.path.basename(filename)
+    return any(name.endswith(ext) for ext in extensions_for(input_type))
 
 
 def strip_ext(filename, input_type):
@@ -298,7 +299,7 @@ def strip_ext(filename, input_type):
     if input_type == "illumina_fastq":
         return ILLUMINA_MATE_RE.split(name)[0]
     for ext in sorted(extensions_for(input_type), key=len, reverse=True):
-        if name.lower().endswith(ext.lower()):
+        if name.endswith(ext):
             return name[: -len(ext)]
     return name
 
