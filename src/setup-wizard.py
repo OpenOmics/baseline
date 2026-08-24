@@ -65,8 +65,6 @@ except ImportError:
 SUPPORTED_INPUT_FILETYPES = {
     "illumina_fastq": {"fastq": True,  "exts": [".R1.fastq.gz", ".R2.fastq.gz"], "primary_ext": ".R1.fastq.gz", "label": "FastQ", "paired": True},
     "ont_fastq":      {"fastq": True,  "exts": [".fastq.gz"], "primary_ext": ".fastq.gz", "label": "FastQ", "paired": False},
-    "ont_fast5":      {"fastq": False, "exts": [".fast5"], "primary_ext": ".fast5", "label": "FAST5", "paired": False},
-    "ont_pod5":       {"fastq": False, "exts": [".pod5"], "primary_ext": ".pod5", "label": "POD5", "paired": False},
     "fasta":          {"fastq": False, "exts": [".fa.gz"], "primary_ext": ".fa.gz", "label": "FASTA", "paired": False},
     "bam":            {"fastq": False, "exts": [".bam"],  "primary_ext": ".bam",  "label": "BAM", "paired": False},
     "cram":           {"fastq": False, "exts": [".cram"], "primary_ext": ".cram", "label": "CRAM", "paired": False},

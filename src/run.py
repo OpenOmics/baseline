@@ -342,7 +342,7 @@ def rename(filename, input_type):
         raise NameError(_fatal_message(
             f"Input '{filename}' does not match declared input_type '{input_type}'!\n"
             f"Expected one of the following extensions: {', '.join(extensions_for(input_type))}\n"
-            "Please correct options.input_type in config.json or remove this file."
+            "Please rename the file, correct options.input_type in config.json, or remove this file."
         ))
     return filename
 
@@ -507,7 +507,8 @@ def sym_safe(input_data, target, input_type, input_dirname="inputs"):
     """Creates re-named symlinks for each input file in target/inputs/.
     Illumina FastQs are normalized to canonical .R1/.R2 names. All other
     supported types are validated and linked as-is. Existing symlinks are not
-    recreated; relative source paths are converted to absolute paths.
+    recreated; relative source paths are converted to absolute paths. Raises
+    if two or more inputs would map to the same symlink name.
     @param input_data list[<str>]:
         Input files to symlink to target/input_dirname
     @param target <str>:
@@ -527,11 +528,34 @@ def sym_safe(input_data, target, input_type, input_dirname="inputs"):
         os.makedirs(input_dir)
 
     renamed_inputs = []
+    renamed_to_sources = {}
     for file in input_data:
         filename = os.path.basename(file)
-        renamed = os.path.join(input_dir, rename(filename, input_type))
+        renamed_name = rename(filename, input_type)
+        renamed = os.path.join(input_dir, renamed_name)
         renamed_inputs.append(renamed)
+        renamed_to_sources.setdefault(renamed_name, []).append(file)
 
+    collisions = {
+        renamed_name: sources
+        for renamed_name, sources in renamed_to_sources.items()
+        if len(sources) > 1
+    }
+    if collisions:
+        details = "\n".join(
+            f"{name}: {', '.join(files)}"
+            for name, files in sorted(collisions.items())
+        )
+        raise NameError(_fatal_message(
+            "Input filename collision detected while creating symlinks.\n"
+            "Two or more inputs would produce the same target filename in "
+            f"'{input_dirname}/':\n"
+            f"{details}\n"
+            "Please ensure every input has a unique basename (or rename files "
+            "before running)."
+        ))
+
+    for file, renamed in zip(input_data, renamed_inputs):
         if not exists(renamed):
             # Follow source symlinks to resolve any binding issues
             os.symlink(os.path.abspath(os.path.realpath(file)), renamed)
