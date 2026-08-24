@@ -23,15 +23,16 @@ from . import version as __version__
 
 # Constants
 # Handling different input filetypes, i.e illumina
-# fastq files, bam, cram, vcf, tsv, csv, ont fastqs,
-# ont fast5, ont pod5, etc. The input_type is defined
-# in config/config.json under options.input_type, so
-# the type is never inferred from filenames.
+# fastq files, fasta, bam, cram, vcf, tsv, csv, ont
+# fastqs, ont fast5, ont pod5, etc. The input_type is
+# defined in config/config.json under options.input_type,
+# so the type is never inferred from filenames.
 SUPPORTED_INPUT_FILETYPES = {
     "illumina_fastq": {"fastq": True, "is_dir": False, "exts": [".R1.fastq.gz", ".R2.fastq.gz"]},
-    "ont_fastq": {"fastq": True,  "is_dir": False, "exts": [".fastq.gz", ".fq.gz", ".fastq", ".fq"]},
+    "ont_fastq": {"fastq": True,  "is_dir": False, "exts": [".fastq.gz"]},
     "ont_fast5": {"fastq": False, "is_dir": True, "exts": [".fast5"]},
     "ont_pod5":  {"fastq": False, "is_dir": True, "exts": [".pod5"]},
+    "fasta": {"fastq": False, "is_dir": False, "exts": [".fa.gz"]},
     "bam":  {"fastq": False, "is_dir": False, "exts": [".bam"]},
     "cram": {"fastq": False, "is_dir": False, "exts": [".cram"]},
     "vcf":  {"fastq": False, "is_dir": False, "exts": [".vcf.gz", ".vcf"]},
@@ -69,7 +70,7 @@ ILLUMINA_FASTQ_RENAME = {
 # Endedness signal written to config['project']['nends'].
 NENDS_SINGLE = 1   # single-end / single-file-per-sample
 NENDS_PAIRED = 2   # paired-end Illumina FastQ
-NENDS_OTHER = -1   # non-fastq (bam, cram, vcf, tables, ont signal dirs)
+NENDS_OTHER = -1   # non-fastq (fasta, bam, cram, vcf, tables, ont signal dirs)
 NENDS_LABELS = {NENDS_SINGLE: "single-end", NENDS_PAIRED: "paired-end", NENDS_OTHER: "other"}
 
 # Colorized output for user-facing messages
@@ -279,8 +280,8 @@ def matches_type(filename, input_type):
         Declared input type from config
     @return <bool>
     """
-    name = os.path.basename(filename).lower()
-    return any(name.endswith(ext.lower()) for ext in extensions_for(input_type))
+    name = os.path.basename(filename)
+    return any(name.endswith(ext) for ext in extensions_for(input_type))
 
 
 def strip_ext(filename, input_type):
@@ -298,7 +299,7 @@ def strip_ext(filename, input_type):
     if input_type == "illumina_fastq":
         return ILLUMINA_MATE_RE.split(name)[0]
     for ext in sorted(extensions_for(input_type), key=len, reverse=True):
-        if name.lower().endswith(ext.lower()):
+        if name.endswith(ext):
             return name[: -len(ext)]
     return name
 
@@ -341,7 +342,7 @@ def rename(filename, input_type):
         raise NameError(_fatal_message(
             f"Input '{filename}' does not match declared input_type '{input_type}'!\n"
             f"Expected one of the following extensions: {', '.join(extensions_for(input_type))}\n"
-            "Please correct options.input_type in config.json or remove this file."
+            "Please rename the file, correct options.input_type in config.json, or remove this file."
         ))
     return filename
 
@@ -506,7 +507,8 @@ def sym_safe(input_data, target, input_type, input_dirname="inputs"):
     """Creates re-named symlinks for each input file in target/inputs/.
     Illumina FastQs are normalized to canonical .R1/.R2 names. All other
     supported types are validated and linked as-is. Existing symlinks are not
-    recreated; relative source paths are converted to absolute paths.
+    recreated; relative source paths are converted to absolute paths. Raises
+    if two or more inputs would map to the same symlink name.
     @param input_data list[<str>]:
         Input files to symlink to target/input_dirname
     @param target <str>:
@@ -526,11 +528,34 @@ def sym_safe(input_data, target, input_type, input_dirname="inputs"):
         os.makedirs(input_dir)
 
     renamed_inputs = []
+    renamed_to_sources = {}
     for file in input_data:
         filename = os.path.basename(file)
-        renamed = os.path.join(input_dir, rename(filename, input_type))
+        renamed_name = rename(filename, input_type)
+        renamed = os.path.join(input_dir, renamed_name)
         renamed_inputs.append(renamed)
+        renamed_to_sources.setdefault(renamed_name, []).append(file)
 
+    collisions = {
+        renamed_name: sources
+        for renamed_name, sources in renamed_to_sources.items()
+        if len(sources) > 1
+    }
+    if collisions:
+        details = "\n".join(
+            f"{name}: {', '.join(files)}"
+            for name, files in sorted(collisions.items())
+        )
+        raise NameError(_fatal_message(
+            "Input filename collision detected while creating symlinks.\n"
+            "Two or more inputs would produce the same target filename in "
+            f"'{input_dirname}/':\n"
+            f"{details}\n"
+            "Please ensure every input has a unique basename (or rename files "
+            "before running)."
+        ))
+
+    for file, renamed in zip(input_data, renamed_inputs):
         if not exists(renamed):
             # Follow source symlinks to resolve any binding issues
             os.symlink(os.path.abspath(os.path.realpath(file)), renamed)
